@@ -34,10 +34,6 @@ with open(os.path.join(resultPath, "prediction.csv"), "w") as output:
         ptr = testGraph.indptr[user - 1]
         ptrNext = testGraph.indptr[user]
 
-        friendsDates = np.fromiter(map(lambda x: birthDates[x], testGraph.indices[ptr:ptrNext]), dtype=np.int)
-
-        meanDate = np.mean(friendsDates)
-
         schoolmatesAgeList = []
         collegeAgeList = []
         closeFriendsList = []
@@ -45,12 +41,17 @@ with open(os.path.join(resultPath, "prediction.csv"), "w") as output:
         for i in range(ptr, ptrNext):
             mask = testGraph.data[i]
             age = birthDates[testGraph.indices[i]]
+            if age == 0:
+                continue
             if mask & (1 << 8):
                 closeFriendsList.append(age)
             if mask & (1 << 10):
                 schoolmatesAgeList.append(age)
             if mask & (1 << 14):
                 collegeAgeList.append(age)
+
+        friendsDates = np.fromiter(map(lambda x: birthDates[x], testGraph.indices[ptr:ptrNext]), dtype=np.int)
+        meanDate = np.mean(friendsDates)
 
         dates = [float(meanDate)]
 
